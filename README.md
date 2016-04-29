@@ -71,7 +71,7 @@ class WebsiteUser(HttpLocust):
 ```locust -f <your_file_name.py> --master -H <https://your_server_under_test>```
 
 ## Additional Flows
-* Now you can pick any additional flows from mitmproxy. For each one, select the flow, and then press the **E** key, which is a shortcut for *Export* and then press **t**, for *locust task*
+* Now you can pick any additional flows from mitmproxy. For each one, select the flow, and then press the **E** key, and then press **t**, for *locust task*
 
 * Paste the new code immediately under the line
 ```python
@@ -153,4 +153,10 @@ class WebsiteUser(HttpLocust):
 
 * Review carefully the generated code, and fix / update headers, params, and any other message component as required. Check also that no indentation mistakes happened during the pasting of the code.
 
-* The new load script will hit also all flows added. Please consult locust documentation for how to tune and tweak this code further.
+* The new load script will hit all flows added. Please consult locust documentation for how to tune and tweak this code further to your needs.
+
+## Next Steps
+
+* To scale your load tests to the cloud, check other projects, like:
+  * [locust-swarm](https://github.com/ryankanno/locust-swarm)
+  * [AWS Elastic Beanstalk Load Generator Example](https://github.com/awslabs/eb-locustio-sample)
