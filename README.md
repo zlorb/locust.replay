@@ -73,9 +73,7 @@ class WebsiteUser(HttpLocust):
 ## Additional Flows
 * Now you can pick any additional flows from mitmproxy. For each one, select the flow, and then press the **E** key, and then press **t**, for *locust task*
 
-* Paste the new code immediately under the line
-```### Additional tasks can go here ###```
-in the code above.
+* Paste the new code immediately under the line `### Additional tasks can go here ###` in the code above.
 
 * The code will now be similar to:
 
