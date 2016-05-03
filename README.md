@@ -152,6 +152,16 @@ class WebsiteUser(HttpLocust):
 
 * The new load script will hit all flows added. Please consult locust documentation for how to tune and tweak this code further to your needs.
 
+## Many Flows
+Extracting flows one by one loses its charm after a while. At that point, we can use *mitmdump* with script execution.
+Sample script is included in [this](https://raw.githubusercontent.com/zlorb/locust.replay/master/locust_extractor.py "locust_extractor.py") project.
+Please refer to mitmdump documentation for more command-line details. For example, start by invoking:
+
+  ```mitmdump --anticache -s "locust_extractor.py <file prefix>" ```
+
+Then proceed with configuring the client or browser to use the mitmdump proxy, and perform the test actions. When done, stop the mitmdump process.
+This will result in mitmdump creating a locust script for each of the hosts contacted during the recorded session, using the given file name as prefix.
+
 ## Next Steps
 
 * To scale your load tests to the cloud, check other projects, like:
