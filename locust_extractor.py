@@ -1,4 +1,5 @@
 import re
+import sys
 from textwrap import dedent
 from six.moves.urllib.parse import quote, quote_plus
 
@@ -14,11 +15,19 @@ class locust(object):
     def __locust_code(self, flow):
         code = dedent("""
             from locust import HttpLocust, TaskSet, task
+            import time
 
             class UserBehavior(TaskSet):
                 def on_start(self):
                     ''' on_start is called when a Locust start before any task is scheduled '''
-                    self.{name}()
+                    self.tasks.sort()
+                    self.next_task_nr = 0
+                    time.sleep(1)
+
+                def get_next_task(self):
+                    next_task = self.tasks[self.next_task_nr]
+                    self.next_task_nr = (self.next_task_nr + 1) % len(self.tasks)
+                    return next_task
 
                 @task()
                 def {name}(self):
@@ -42,8 +51,10 @@ class locust(object):
         name = re.sub('\W|^(?=\d)', '_', file_name)
         url = flow.request.scheme + "://" + flow.request.host + "/" + "/".join(components)
         if name == "" or name is None:
-            new_name = "_".join([str(flow.request.host) , str(flow.request.timestamp_start)])
+            new_name = str(flow.request.host)
             name = re.sub('\W|^(?=\d)', '_', new_name)
+        name = 'task_{:06d}_'.format(flow.count) + "_".join([str(flow.request.method), name])
+        name = name.replace('__', '_')
         args = ""
         headers = ""
         if flow.request.headers:
@@ -52,7 +63,7 @@ class locust(object):
             args += "\n            headers=headers,"
         params = ""
         if flow.request.query:
-            lines = ["            '%s': '%s',\n" % (k, v) for k, v in flow.request.query]
+            lines = ["            '%s': '%s',\n" % (k, v) for k, v in flow.request.query.collect()]
             params = "\n        params = {\n%s        }\n" % "".join(lines)
             args += "\n            params=params,"
         data = ""
@@ -96,11 +107,14 @@ class locust(object):
     def get(self, host):
         return self.__locusts__[host]
 
+global context
+context = locust()
 
-def start(context, argv):
+
+def start():
     context.dump_file = None
-    if len(argv) > 1:
-        context.dump_file = argv[1]
+    if len(sys.argv) > 1:
+        context.dump_file = sys.argv[1]
     else:
         raise ValueError(
             'Usage: -s "locust_extractor.py filename" '
@@ -108,14 +122,17 @@ def start(context, argv):
         )
     context.hosts_list = set()
     context.locusts = locust()
+    context.count = 0
 
 
-def request(context, flow):
+def request(flow):
+    flow.count = context.count
+    context.count += 1
     context.hosts_list.add(flow.request.host)
     context.locusts.add(flow.request.host, flow)
 
 
-def done(context):
+def done():
     for host in context.hosts_list:
         hostfile = re.sub('\W|^(?=\d)', '_', host)
         filename = context.dump_file + '-' + hostfile + '.py'
