@@ -1,7 +1,11 @@
+"""Sample script to extract flows on mitmproxy into usable locust load test scripts.
+
+   Each destination will generate a corresponding test file.
+"""
 import re
-import sys
 from textwrap import dedent
 from six.moves.urllib.parse import quote, quote_plus
+import sys
 
 
 class locust(object):
@@ -15,12 +19,15 @@ class locust(object):
     def __locust_code(self, flow):
         code = dedent("""
             from locust import HttpLocust, TaskSet, task
+            from operator import attrgetter
             import time
 
             class UserBehavior(TaskSet):
                 def on_start(self):
-                    ''' on_start is called when a Locust start before any task is scheduled '''
-                    self.tasks.sort()
+                    ''' on_start is called when a Locust start before any task is scheduled.
+                        Here we sort the tasks by name. '''
+                    ns = attrgetter('__name__')
+                    self.tasks = sorted(self.tasks, key=ns)
                     self.next_task_nr = 0
                     time.sleep(1)
 
