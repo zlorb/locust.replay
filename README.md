@@ -1,4 +1,4 @@
-# Locust.Replay
+# Locust.Replay #
 
 [Locust.io](http://locust.io "http://locust.io") is an easy-to-use, distributed, user load testing tool. Intended for load testing web sites or APIs and figuring out how many concurrent users a system can handle.
 
@@ -10,19 +10,51 @@ This is where [mitmproxy](https://mitmproxy.org "https://mitmproxy.org") comes i
 
 Following is a simple example, that explains this concept.
 
-## Getting Started
+## Getting Started ##
 
-Obviously, **mitmproxy** and **locust** have to be installed. **mitmproxy** version >=0.18 or latest
-github code is required. Please follow the corresponding user manuals for each. It is also beyond the scope of this document to explain basic usage for these tools. However, basic steps are:
+Obviously, **mitmproxy** and **locust** have to be installed. Please follow the corresponding user manuals for mitmproxy and locust. It is beyond the scope of this document to explain basic usage for these tools.
 
-* Run mitmproxy, for example:
+* A couple of options are available:
+  * **mitmproxy** version >= 3.0 up to latest github code - use `locust_extractor.py` (for python3).
+  * **mitmproxy** version >=0.18 and <1.0 (legacy) - use `locust_extractor2.py` (for python2 backward compatability).
+
+  For new mitmproxy, please donwload [locust_extractor.py](https://raw.githubusercontent.com/zlorb/locust.replay/master/locust_extractor.py "locust_extractor.py") to your system, and note the path to the download location. One could use the add-ons folder under mitmproxy installation.
+
+  Legacy file is available as part of mitmproxy installation. 
+
+* Run mitmproxy, for example, when using new mitmproxy:
+
+  ```mitmproxy --anticache -s <path to>\locust_extractor.py --set filename_prefix=<file prefix>```
+
+  In the legacy use-case, simply:
 
   ```mitmproxy --anticache```
 
 * Configure a client (such as a browser) to use it as a proxy, if needed.
 * Perform the manual test session, simulating a single user. In this example we will search the web.
 
-## Export to Code
+## Export to Code ##
+
+## New MITMProxy ###
+
+* On mitmproxy cosole, locust.replay functionaliy is available as commands at the prompt (started by typing “:“):
+
+  * `locust.code.clip  <flow>`
+
+    where `<flow>` can be @all, @focus, @hidden, @marked, @shown, or @unmarked (please see mitmproxy documentation for explanation on each). Full code will be copied to the clipboard. This code may not be valid if multiple destination hosts are selected. From the clipboard you can paste the code to your favorite editor.
+
+  * `locust.task.clip  <flow>`
+
+    where `<flow>` can is the same as above. Locust tasks code will be copied to the clipboard. This code may not be valid if multiple destination hosts are selected.
+
+  * `locust.extractAll`
+
+    All flows will be extracted to files, with names based on provided file prefix and destination host.
+
+![new mitmproxy console](https://raw.githubusercontent.com/zlorb/locust.replay/master/images/locust3_command "new mitmproxy console")
+
+### Legacy MITMProxy ###
+
 * On mitmproxy console, select the first flow, i.e., the flow that should initialize each user session. Then press the **E** key, which is a shortcut for *Export* and then press **l**, for *locust code*.
 
 ![mitmproxy console](https://raw.githubusercontent.com/zlorb/locust.replay/master/images/mitmproxy_screenshot.png "mitmproxy console")
@@ -66,11 +98,13 @@ class WebsiteUser(HttpLocust):
     min_wait = 1000
     max_wait = 3000
 ```
+
 * Save this code to a .py file. This file is already a useable locust test script, which can be invoked from command-line. For example:
 
 ```locust -f <your_file_name.py> --master -H <https://your_server_under_test>```
 
-## Additional Flows
+## Additional Flows ##
+
 * Now you can pick any additional flows from mitmproxy. For each one, select the flow, and then press the **E** key, and then press **t**, for *locust task*
 
 * Paste the new code immediately under the line `### Additional tasks can go here ###` in the code above.
@@ -152,17 +186,23 @@ class WebsiteUser(HttpLocust):
 
 * The new load script will hit all flows added. Please consult locust documentation for how to tune and tweak this code further to your needs.
 
-## Many Flows
-Extracting flows one by one loses its charm after a while. At that point, we can use *mitmdump* with script execution.
-Sample script is included in [this](https://raw.githubusercontent.com/zlorb/locust.replay/master/locust_extractor.py "locust_extractor.py") project.
+## Many Flows ##
+
+Extracting flows via clipboard may lose its charm after a while. At that point, we can use *mitmdump* with script execution, toghether with our downloaded locust_extractor.py.
 Please refer to mitmdump documentation for more command-line details. For example, start by invoking:
+
+  New mitmproxy:
+
+  ```mitmdump --anticache -s <path to>\locust_extractor.py --set filename_prefix=<file prefix>```
+  
+  Legacy mitmproxy:
 
   ```mitmdump --anticache -s "locust_extractor.py <file prefix>" ```
 
 Then proceed with configuring the client or browser to use the mitmdump proxy, and perform the test actions. When done, stop the mitmdump process.
 This will result in mitmdump creating a locust script for each of the hosts contacted during the recorded session, using the given file name as prefix.
 
-## Next Steps
+## Next Steps ##
 
 * To scale your load tests to the cloud, check other projects, like:
   * [locust-swarm](https://github.com/ryankanno/locust-swarm)
