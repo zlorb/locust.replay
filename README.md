@@ -51,7 +51,7 @@ Obviously, **mitmproxy** and **locust** have to be installed. Please follow the 
 
     All flows will be extracted to files, with names based on provided file prefix and destination host.
 
-![new mitmproxy console](https://raw.githubusercontent.com/zlorb/locust.replay/master/images/locust3_command "new mitmproxy console")
+![new mitmproxy console](https://raw.githubusercontent.com/zlorb/locust.replay/master/images/locust3_command.png "new mitmproxy console")
 
 ### Legacy MITMProxy ###
 
