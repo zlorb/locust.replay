@@ -49,7 +49,7 @@ Obviously, **mitmproxy** and **locust** have to be installed. Please follow the 
 
   * `locust.extractAll`
 
-    All flows will be extracted to files, with names based on provided file prefix and destination host.
+    All flows will be extracted to files, with names based on provided file prefix and destination host. The same will happen when existing mitmproxy.
 
 ![new mitmproxy console](https://raw.githubusercontent.com/zlorb/locust.replay/master/images/locust3_command.png "new mitmproxy console")
 
