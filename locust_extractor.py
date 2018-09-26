@@ -43,6 +43,7 @@ class locust(object):
         return
 
     def locust_code(self, flow: flow.Flow) -> str:
+        """Generate main locust code."""
         code = dedent("""
             # -*- coding: UTF-8 -*-
 
@@ -133,9 +134,12 @@ class locust(object):
             quote_plus(host), "' + quote_plus(self.locust.host) + '")
         code = code.replace(quote(host), "' + quote(self.locust.host) + '")
         code = code.replace("'' + ", "")
+        code = code.replace("'''b'", "'''")
+        code = code.replace("''''", "'''")
         return code
 
     def locust_task(self, flow: flow.Flow) -> str:
+        "Generate locust task."
         code = self.locust_code(flow)
         start_task = len(code.split('@task')[0]) - 4
         end_task = -19 - len(code.split('### Additional')[1])
@@ -173,7 +177,7 @@ class ExtractLocust(object):
         self.context.locusts = locust()
         self.context.count = 0
         self.context.dump_file = None
-        
+
 
     def load(self, loader) -> None:
         """Define options passed to this add-on."""
