@@ -47,25 +47,13 @@ class locust(object):
         code = dedent("""
             # -*- coding: UTF-8 -*-
 
-            from locust import HttpLocust, TaskSet, task
+            from locust import HttpUser, SequentialTaskSet, task, between
             from operator import attrgetter
             import gevent
 
 
-            class UserBehavior(TaskSet):
-                def on_start(self):
-                    ''' on_start is called when a Locust start before any task is scheduled.
-                        Here we sort the tasks by name. '''
-                    ns = attrgetter('__name__')
-                    self.tasks = sorted(self.tasks, key=ns)
-                    self.next_task_nr = 0
-                    gevent.sleep(1)
-
-                def get_next_task(self):
-                    next_task = self.tasks[self.next_task_nr]
-                    self.next_task_nr = (self.next_task_nr + 1) % len(self.tasks)
-                    return next_task
-
+            class UserBehavior(SequentialTaskSet):
+            
                 @task()
                 def {name}(self):
                     url = '{url}'
@@ -78,10 +66,9 @@ class locust(object):
                 ### Additional tasks can go here ###
 
 
-            class WebsiteUser(HttpLocust):
-                task_set = UserBehavior
-                min_wait = 1000
-                max_wait = 3000
+            class WebsiteUser(HttpUser):
+                tasks = [UserBehavior]
+                wait_time = between(1,3)
                 """).strip()
         components = [quote(x, safe="") for x in flow.request.path_components]
         file_name = "_".join(components)
@@ -129,10 +116,10 @@ class locust(object):
             args=args,
         )
         host = flow.request.scheme + "://" + flow.request.host
-        code = code.replace(host, "' + self.locust.host + '")
+        code = code.replace(host, "' + self.user.host + '")
         code = code.replace(
-            quote_plus(host), "' + quote_plus(self.locust.host) + '")
-        code = code.replace(quote(host), "' + quote(self.locust.host) + '")
+            quote_plus(host), "' + quote_plus(self.user.host) + '")
+        code = code.replace(quote(host), "' + quote(self.user.host) + '")
         code = code.replace("'' + ", "")
         code = code.replace("'''b'", "'''")
         code = code.replace("''''", "'''")
@@ -151,10 +138,11 @@ class locust(object):
         if host not in list(self.__locusts__.keys()):
             self.__locusts__[host] = self.locust_code(flow)
         else:
-            tmp = self.__locusts__[host][:-100]
+            insertion_index = self.__locusts__[host].find('class WebsiteUser') 
+            tmp = self.__locusts__[host][:insertion_index]
             tmp += self.locust_task(flow)
             tmp += '\n'
-            tmp += self.__locusts__[host][-100:]
+            tmp += self.__locusts__[host][insertion_index:]
             self.__locusts__[host] = tmp
         return
 
