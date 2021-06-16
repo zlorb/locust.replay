@@ -211,3 +211,9 @@ This will result in mitmdump creating a locust script for each of the hosts cont
 * To scale your load tests to the cloud, check other projects, like:
   * [locust-swarm](https://github.com/ryankanno/locust-swarm)
   * [AWS Elastic Beanstalk Load Generator Example](https://github.com/awslabs/eb-locustio-sample)
+
+## Contributions ##
+
+Thanks for your contribution to this project:
+* @chrismarch
+
