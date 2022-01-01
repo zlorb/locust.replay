@@ -20,7 +20,7 @@ import typing  # noqa
 import mitmproxy
 
 from mitmproxy import command
-from mitmproxy import connections  # noqa
+from mitmproxy import connection  # noqa
 from mitmproxy import ctx
 from mitmproxy import exceptions
 from mitmproxy import flow
